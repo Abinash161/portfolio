@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Portfolio</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
+        /* General Styles */
         body {
             margin: 0;
             overflow: auto;
             font-family: Arial, sans-serif;
             color: white;
-            background-color: #000000; /* Black background */
+            background-color: #000000;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,6 +23,68 @@
             background-repeat: repeat;
         }
 
+        body.light-mode {
+            background-color: #f0f0f0;
+            color: #000;
+        }
+
+        body.light-mode .skills li, body.light-mode .portfolio li {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        body.light-mode .skills li:hover, body.light-mode .portfolio li:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Loading Animation */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #44aa88;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Dark/Light Mode Toggle */
+        #themeToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        #themeToggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Info Panel */
         .info-panel {
             position: absolute;
             top: 20px;
@@ -33,15 +97,17 @@
             width: 250px;
         }
 
+        /* Dashboard */
         .dashboard {
-            position: absolute;
+            position: fixed;
             top: 20px;
-            right: 20px;
+            right: 80px; /* Adjusted to avoid overlap with theme toggle */
             background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 15px;
             border-radius: 5px;
             text-align: center;
+            z-index: 1000; /* Ensure it's above other elements */
         }
 
         .dashboard button {
@@ -60,36 +126,56 @@
             transform: scale(1.05);
         }
 
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
-            top: 50%;
+            top: 32%;
             left: 50%;
-            transform: translate(-50%, -50%) rotateX(0deg);
-            background: rgba(255, 255, 255, 0.9);
+            transform: translate(-50%, -50%);
+            background: rgba(19, 9, 9, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-            width: 50%;
-            max-width: 500px;
+            width: 90%;
+            max-width: 600px;
             text-align: center;
             opacity: 0;
             animation: modalFadeIn 0.5s forwards;
-            z-index: 10;
+            z-index: 1000;
+        }
+
+        body.light-mode .modal {
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+        }
+
+        body.dark-mode .modal {
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+        }
+
+        .modal button {
+            background-color: #44aa88;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
+                transform: translate(-50%, -40%);
             }
             to {
                 opacity: 1;
-                transform: translate(-50%, -50%) scale(1);
+                transform: translate(-50%, -50%);
             }
         }
 
-        /* Portfolio content sections */
+        /* Portfolio Content Sections */
         .container {
             position: relative;
             z-index: 5;
@@ -104,6 +190,14 @@
 
         .intro, .skills, .portfolio, .contact, .timeline, .testimonials {
             margin: 50px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .intro.visible, .skills.visible, .portfolio.visible, .timeline.visible, .testimonials.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .skills ul, .portfolio ul {
@@ -114,6 +208,15 @@
         .skills li, .portfolio li {
             font-size: 1.2em;
             margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .skills li:hover, .portfolio li:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .contact a {
@@ -157,7 +260,7 @@
             margin-top: 10px;
         }
 
-        /* Testimonial section */
+        /* Testimonials */
         .testimonials {
             text-align: center;
         }
@@ -193,44 +296,17 @@
             color: #44aa88;
         }
 
-        /* Added padding and margin to fix left gap issue */
+        /* Scrollable Container */
         .scrollable-container {
             height: auto;
             width: 100%;
-            padding-bottom: 100px; /* Ensures bottom content is visible */
+            padding-bottom: 100px;
             margin-top: 60px;
-            padding-left: 20px; /* Added left padding */
-            padding-right: 20px; /* Added right padding */
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
-        .intro, .skills, .portfolio, .timeline, .testimonials {
-            padding-left: 40px;
-            padding-right: 40px;
-        }
-
-        /* Adjusting color for better visibility */
-        .skills ul, .portfolio ul {
-            color: #f0f0f0; /* Light text color for better contrast */
-        }
-
-        /* Repositioning Project information for better placement */
-        .portfolio {
-            position: relative;
-            top: 10px;
-        }
-
-        /* Fix the visibility issue in the modal */
-        .modal {
-            background-color: #222;
-            color: #fff;
-        }
-
-        .modal button {
-            background-color: #44aa88;
-            color: white;
-        }
-
-        /* Added styles for the profile picture */
+        /* Profile Image */
         .profile-img {
             border-radius: 50%;
             width: 150px;
@@ -239,7 +315,45 @@
             margin-bottom: 20px;
         }
 
-        /* Mobile adjustments */
+        /* Back to Top Button */
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #44aa88;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: opacity 0.3s;
+        }
+
+        #backToTop:hover {
+            background: #338877;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            margin-top: 50px;
+        }
+
+        .social-links a {
+            color: #44aa88;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
             .dashboard {
                 position: relative;
@@ -250,25 +364,11 @@
             }
 
             .dashboard button {
-                width: 100%;
-                margin: 5px 0;
-                padding: 12px;
-                font-size: 1.2em;
-            }
-
-            .intro, .skills, .portfolio, .timeline, .testimonials {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-
-            .testimonial-card {
-                width: 100%;
-                margin: 10px 0;
+                font-size: 1em;
             }
 
             .modal {
-                width: 80%;
-                max-width: 400px;
+                width: 90%;
                 padding: 15px;
             }
 
@@ -278,6 +378,15 @@
 
             .skills li, .portfolio li {
                 font-size: 1em;
+            }
+
+            .testimonial-card {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .scrollable-container {
+                padding: 10px;
             }
         }
 
@@ -308,9 +417,18 @@
     </style>
 </head>
 <body>
+    <!-- Loading Animation -->
+    <div id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Dark/Light Mode Toggle -->
+    <button id="themeToggle">🌙</button>
+
+    <!-- Info Panel -->
     <div class="info-panel" id="infoPanel">Click on an object for more info</div>
 
-    <!-- Portfolio Menu (kept intact) -->
+    <!-- Dashboard -->
     <div class="dashboard">
         <h3>Portfolio Menu</h3>
         <button onclick="showModal('aboutModal')">About Me</button>
@@ -320,13 +438,13 @@
         <button onclick="showModal('testimonialsModal')">Testimonials</button>
     </div>
 
-    <!-- Main Content (Home Page) -->
+    <!-- Main Content -->
     <div class="scrollable-container">
         <!-- Introduction Section -->
         <section class="intro">
-            <img src="luffy.png" alt="Profile Picture" class="profile-img"> <!-- Add your photo here -->
+            <img src="luffy.png" alt="Profile Picture" class="profile-img">
             <h1>Welcome to My Portfolio</h1>
-            <p>Hi, I'm a passionate first year student studying software engineering, specializing in technology, web development, and innovation. I’m eager to collaborate on exciting projects and make a difference.</p>
+            <p>Hi, I'm a passionate first-year student studying software engineering, specializing in technology, web development, and innovation. I’m eager to collaborate on exciting projects and make a difference.</p>
         </section>
 
         <!-- Skills Section -->
@@ -336,7 +454,6 @@
                 <li>Web Development: HTML, CSS, JavaScript</li>
                 <li>Machine Learning: Python, C, C++</li>
                 <li>Cybersecurity: Ethical Hacking, Vulnerability Testing</li>
-                
                 <li>Version Control: Git, GitHub</li>
             </ul>
         </section>
@@ -370,10 +487,20 @@
         </section>
     </div>
 
-    <!-- Modals for Portfolio Information -->
+    <!-- Footer -->
+    <footer>
+        <p>© 2023 Your Name. All rights reserved.</p>
+        <div class="social-links">
+            <a href="#">LinkedIn</a>
+            <a href="#">GitHub</a>
+            <a href="#">Twitter</a>
+        </div>
+    </footer>
+
+    <!-- Modals -->
     <div id="aboutModal" class="modal">
         <h2>About Me</h2>
-        <p>I'm a passionate first year student studying software engineering, specializing in technology, AI, and web development.</p>
+        <p>I'm a passionate first-year student studying software engineering, specializing in technology, AI, and web development.</p>
         <button onclick="closeModal('aboutModal')">Close</button>
     </div>
     <div id="projectsModal" class="modal">
@@ -397,7 +524,16 @@
         <button onclick="closeModal('testimonialsModal')">Close</button>
     </div>
 
+    <!-- Back to Top Button -->
+    <button id="backToTop" title="Go to top">↑</button>
+
     <script>
+        // Loading Animation
+        window.addEventListener('load', () => {
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        // Modal Functions
         function showModal(modalId) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => modal.style.display = 'none');
@@ -410,6 +546,51 @@
             const modal = document.getElementById(modalId);
             modal.style.display = 'none';
         }
+
+        // 3D Effect on Mouse Move (applied only to the background)
+        const background = document.body;
+        background.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 5;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+            background.style.transform = `perspective(1000px) rotateX(${y}deg) rotateY(${x}deg)`;
+        });
+
+        // Back to Top Button
+        const backToTopButton = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.style.display = 'block';
+            } else {
+                backToTopButton.style.display = 'none';
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Dark Mode Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            themeToggle.textContent = body.classList.contains('light-mode') ? '🌙' : '☀️';
+        });
+
+        // Section Animations
+        const sections = document.querySelectorAll('.intro, .skills, .portfolio, .timeline, .testimonials');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => observer.observe(section));
     </script>
 </body>
 </html>
