@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Portfolio</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: auto;
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #000000; /* Black background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            background-image: url('https://www.transparenttextures.com/patterns/brick-wall.png');
+            background-repeat: repeat;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            width: 250px;
+        }
+
+        .dashboard {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .dashboard button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px;
+            background: #44aa88;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .dashboard button:hover {
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateX(0deg);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            width: 50%;
+            max-width: 500px;
+            text-align: center;
+            opacity: 0;
+            animation: modalFadeIn 0.5s forwards;
+            z-index: 10;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        /* Portfolio content sections */
+        .container {
+            position: relative;
+            z-index: 5;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .intro, .skills, .portfolio, .contact, .timeline, .testimonials {
+            margin: 50px 0;
+        }
+
+        .skills ul, .portfolio ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .skills li, .portfolio li {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        .contact a {
+            color: #44aa88;
+            text-decoration: none;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            margin: 0 auto;
+            max-width: 900px;
+            padding: 40px 0;
+        }
+
+        .timeline .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 30px;
+        }
+
+        .timeline .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #44aa88;
+            box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline .timeline-item h3 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .timeline .timeline-item p {
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+
+        /* Testimonial section */
+        .testimonials {
+            text-align: center;
+        }
+
+        .testimonial-card {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 8px;
+            width: 250px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.6);
+            transition: transform 0.2s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .testimonial-card h3 {
+            font-size: 1.2em;
+        }
+
+        .testimonial-card p {
+            font-size: 1.1em;
+        }
+
+        .testimonial-card span {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #44aa88;
+        }
+
+        /* Added padding and margin to fix left gap issue */
+        .scrollable-container {
+            height: auto;
+            width: 100%;
+            padding-bottom: 100px; /* Ensures bottom content is visible */
+            margin-top: 60px;
+            padding-left: 20px; /* Added left padding */
+            padding-right: 20px; /* Added right padding */
+        }
+
+        .intro, .skills, .portfolio, .timeline, .testimonials {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        /* Adjusting color for better visibility */
+        .skills ul, .portfolio ul {
+            color: #f0f0f0; /* Light text color for better contrast */
+        }
+
+        /* Repositioning Project information for better placement */
+        .portfolio {
+            position: relative;
+            top: 10px;
+        }
+
+        /* Fix the visibility issue in the modal */
+        .modal {
+            background-color: #222;
+            color: #fff;
+        }
+
+        .modal button {
+            background-color: #44aa88;
+            color: white;
+        }
+
+        /* Added styles for the profile picture */
+        .profile-img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .dashboard {
+                position: relative;
+                top: 0;
+                right: 0;
+                width: 100%;
+                padding: 10px;
+            }
+
+            .dashboard button {
+                width: 100%;
+                margin: 5px 0;
+                padding: 12px;
+                font-size: 1.2em;
+            }
+
+            .intro, .skills, .portfolio, .timeline, .testimonials {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .testimonial-card {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .modal {
+                width: 80%;
+                max-width: 400px;
+                padding: 15px;
+            }
+
+            h1, h2 {
+                font-size: 1.8em;
+            }
+
+            .skills li, .portfolio li {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1, h2 {
+                font-size: 1.5em;
+            }
+
+            .dashboard button {
+                font-size: 1.1em;
+                padding: 10px;
+            }
+
+            .modal {
+                width: 90%;
+                padding: 10px;
+            }
+
+            .testimonial-card {
+                width: 100%;
+                margin: 10px 0;
+            }
+
+            .scrollable-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel" id="infoPanel">Click on an object for more info</div>
+
+    <!-- Portfolio Menu (kept intact) -->
+    <div class="dashboard">
+        <h3>Portfolio Menu</h3>
+        <button onclick="showModal('aboutModal')">About Me</button>
+        <button onclick="showModal('projectsModal')">Projects</button>
+        <button onclick="showModal('contactModal')">Contact Me</button>
+        <button onclick="showModal('blogModal')">Blog</button>
+        <button onclick="showModal('testimonialsModal')">Testimonials</button>
+    </div>
+
+    <!-- Main Content (Home Page) -->
+    <div class="scrollable-container">
+        <!-- Introduction Section -->
+        <section class="intro">
+            <img src="luffy.png" alt="Profile Picture" class="profile-img"> <!-- Add your photo here -->
+            <h1>Welcome to My Portfolio</h1>
+            <p>Hi, I'm a passionate first year student studying software engineering, specializing in technology, web development, and innovation. I’m eager to collaborate on exciting projects and make a difference.</p>
+        </section>
+
+        <!-- Skills Section -->
+        <section class="skills">
+            <h2>Skills & Technologies</h2>
+            <ul>
+                <li>Web Development: HTML, CSS, JavaScript</li>
+                <li>Machine Learning: Python, C, C++</li>
+                <li>Cybersecurity: Ethical Hacking, Vulnerability Testing</li>
+                
+                <li>Version Control: Git, GitHub</li>
+            </ul>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="timeline">
+            <h2>My Journey</h2>
+            <div class="timeline-item">
+                <h3>2023</h3>
+                <p>Started my journey in tech with a focus on web development and machine learning.</p>
+            </div>
+            <div class="timeline-item">
+                <h3>2025</h3>
+                <p>Currently studying...</p>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <h2>Client Testimonials</h2>
+            <div class="testimonial-card">
+                <h3>Client A</h3>
+                <p>“Pending Info...”</p>
+                <span>Software Developer</span>
+            </div>
+            <div class="testimonial-card">
+                <h3>Client B</h3>
+                <p>“Pending Info...”</p>
+                <span>Project Manager</span>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals for Portfolio Information -->
+    <div id="aboutModal" class="modal">
+        <h2>About Me</h2>
+        <p>I'm a passionate first year student studying software engineering, specializing in technology, AI, and web development.</p>
+        <button onclick="closeModal('aboutModal')">Close</button>
+    </div>
+    <div id="projectsModal" class="modal">
+        <h2>Projects</h2>
+        <p>1. Portfolio Website<br>2. AI Chatbot<br>3. Cybersecurity Scanner<br>4. Data Science Dashboard</p>
+        <button onclick="closeModal('projectsModal')">Close</button>
+    </div>
+    <div id="contactModal" class="modal">
+        <h2>Contact Me</h2>
+        <p>Email: <a href="mailto:abinashpoudel082@gmail.com">abinashpoudel082@gmail.com</a></p>
+        <button onclick="closeModal('contactModal')">Close</button>
+    </div>
+    <div id="blogModal" class="modal">
+        <h2>Blog</h2>
+        <p>Read my latest posts on web development, AI, and more!</p>
+        <button onclick="closeModal('blogModal')">Close</button>
+    </div>
+    <div id="testimonialsModal" class="modal">
+        <h2>Client Testimonials</h2>
+        <p>Read about how clients appreciated my work and dedication!</p>
+        <button onclick="closeModal('testimonialsModal')">Close</button>
+    </div>
+
+    <script>
+        function showModal(modalId) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => modal.style.display = 'none');
+
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
